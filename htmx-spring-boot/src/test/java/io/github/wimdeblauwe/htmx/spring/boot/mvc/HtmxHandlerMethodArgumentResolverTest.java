@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -53,6 +54,55 @@ class HtmxHandlerMethodArgumentResolverTest {
         assertThat(request).isNotNull();
         assertThat(request.isHtmxRequest()).isTrue();
         assertThat(request.isBoosted()).isFalse();
+    }
+
+    @Test
+    void testIsPartialShouldReturnFalseOnFullRequest() throws Exception {
+
+        mockMvc.perform(get("/method-arg-resolver")
+                                .header("HX-Request", "true")
+                                .header("HX-Request-Type", "full"));
+
+        ArgumentCaptor<HtmxRequest> captor = ArgumentCaptor.forClass(HtmxRequest.class);
+        verify(service).doSomething(captor.capture());
+
+        HtmxRequest request = captor.getValue();
+        assertThat(request).isNotNull();
+        assertThat(request.isHtmxRequest()).isTrue();
+        assertThat(request.isPartialRequest()).isFalse();
+    }
+
+    @Test
+    void testIsPartialShouldReturnTrueOnPartialRequest() throws Exception {
+
+        mockMvc.perform(get("/method-arg-resolver")
+                                .header("HX-Request", "true")
+                                .header("HX-Request-Type", "partial"));
+
+        ArgumentCaptor<HtmxRequest> captor = ArgumentCaptor.forClass(HtmxRequest.class);
+        verify(service).doSomething(captor.capture());
+
+        HtmxRequest request = captor.getValue();
+        assertThat(request).isNotNull();
+        assertThat(request.isHtmxRequest()).isTrue();
+        assertThat(request.isPartialRequest()).isTrue();
+    }
+
+    @Test
+    void testIsPartialShouldThrowExceptionOnMissingHeader() throws Exception {
+
+        mockMvc.perform(get("/method-arg-resolver")
+                                .header("HX-Request", "true"));
+
+        ArgumentCaptor<HtmxRequest> captor = ArgumentCaptor.forClass(HtmxRequest.class);
+        verify(service).doSomething(captor.capture());
+
+        HtmxRequest request = captor.getValue();
+        assertThat(request).isNotNull();
+        assertThat(request.isHtmxRequest()).isTrue();
+        assertThatExceptionOfType(NullPointerException.class)
+                .isThrownBy(request::isPartialRequest)
+                .withMessageContaining("'HX-Request-Type' header is missing");
     }
 
     @Test
@@ -119,10 +169,28 @@ class HtmxHandlerMethodArgumentResolverTest {
     }
 
     @Test
+    void testHxSource() throws Exception {
+
+        mockMvc.perform(get("/method-arg-resolver")
+                                .header("HX-Request", "true")
+                                .header("HX-Source", "tag#id"));
+
+        ArgumentCaptor<HtmxRequest> captor = ArgumentCaptor.forClass(HtmxRequest.class);
+        verify(service).doSomething(captor.capture());
+
+        HtmxRequest request = captor.getValue();
+        assertThat(request).isNotNull();
+        assertThat(request.isHtmxRequest()).isTrue();
+        assertThat(request.getSource()).isEqualTo("tag#id");
+        assertThat(request.getSourceElementName()).isEqualTo("tag");
+        assertThat(request.getSourceElementId()).isEqualTo("id");
+    }
+
+    @Test
     void testHxTarget() throws Exception {
         mockMvc.perform(get("/method-arg-resolver")
                                 .header("HX-Request", "true")
-                                .header("HX-Target", "button-1"));
+                                .header("HX-Target", "element#id"));
 
         ArgumentCaptor<HtmxRequest> captor = ArgumentCaptor.forClass(HtmxRequest.class);
         verify(service).doSomething(captor.capture());
@@ -131,7 +199,9 @@ class HtmxHandlerMethodArgumentResolverTest {
         assertThat(request).isNotNull();
         assertThat(request.isHtmxRequest()).isTrue();
         assertThat(request.isBoosted()).isFalse();
-        assertThat(request.getTarget()).isEqualTo("button-1");
+        assertThat(request.getTarget()).isEqualTo("element#id");
+        assertThat(request.getTargetElementName()).isEqualTo("element");
+        assertThat(request.getTargetElementId()).isEqualTo("id");
     }
 
     @Test

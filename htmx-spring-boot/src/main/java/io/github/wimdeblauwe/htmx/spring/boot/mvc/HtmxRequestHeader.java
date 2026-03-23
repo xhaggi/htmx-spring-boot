@@ -37,6 +37,23 @@ public enum HtmxRequestHeader {
      */
     HX_REQUEST("HX-Request"),
     /**
+     * The {@code HX-Request-Type} request header indicates if request targets a specific element or the whole page.
+     * <p>
+     * <b>Available only in htmx 4.x or later.</b>
+     *
+     * @see <a href="https://four.htmx.org/reference/headers/HX-Request-Type">HX-Request</a>
+     */
+    HX_REQUEST_TYPE("HX-Request-Type"),
+    /**
+     * The element that triggered the request.
+     * <p>
+     * <b>Available only in htmx 4.x or later.</b>
+     *
+     * @see <a href="https://four.htmx.org/reference/headers/HX-Source">HX-Source</a>
+     * @since 5.2
+     */
+    HX_SOURCE("HX-SOURCE"),
+    /**
      * The {@code id} of the target element if it exists.
      *
      * @see <a href="https://htmx.org/reference/#request_headers">HX-Target</a>
