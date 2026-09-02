@@ -4,6 +4,8 @@
 
 # Spring Boot and Thymeleaf library for htmx
 
+> 📕 Want to write production-ready Spring Boot starters like this one? Read [Crafting Spring Boot Starters](https://www.wimdeblauwe.com/books/crafting-spring-boot-starters/).
+
 The project simplifies the integration of [htmx](https://htmx.org/) with [Spring Boot](https://spring.io/projects/spring-boot) / [Spring Web MVC](https://docs.spring.io/spring-framework/reference/web/webmvc.html) applications.
 It provides a set of views, annotations, and argument resolvers for controllers to easily handle htmx-related request and response headers.
 This ensures seamless interaction between the frontend and backend, especially for dynamic content updates via htmx.
